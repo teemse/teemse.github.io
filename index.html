@@ -1,36 +1,240 @@
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
-	<meta charset="UTF-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Natural Forest</title>
-	<link rel="stylesheet" href="css/main.css">
-	<script src="js/app.js" defer></script>
-	<script src="libs/rain.js" defer></script>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Приглашение на День Рождения</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            background-color: #31ade1;
+            /* Цвет за фоновым изображением */
+        }
+
+        /* Контейнер для масштабирования */
+        .scaler {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Размеры оригинального дизайна */
+            min-width: 800px;
+            min-height: 600px;
+            overflow: hidden;
+        }
+
+        /* Фон */
+        .background-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('birtday.jpg') no-repeat center center;
+            background-size: contain;
+            filter: brightness(1);
+            z-index: -1;
+        }
+
+        /* Текст с абсолютным позиционированием */
+        .invitation-line {
+            position: absolute;
+            left: 70%;
+            transform: translateX(-50%);
+            font-size: calc(19px + 1vw);
+            /* Адаптивный размер шрифта */
+            color: rgb(0, 0, 0);
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+            white-space: nowrap;
+            opacity: 0;
+            animation: fadeInUp 0.8s forwards;
+        }
+
+        /* Координаты текста (настройте под ваш дизайн) */
+        .invitation-line:nth-child(2) {
+            top: 31%;
+            left: 70%;
+            /* Сдвинуть левее */
+            color: rgb(100, 0, 0);
+            animation-delay: 0.6s;
+        }
+
+        .invitation-line:nth-child(3) {
+            top: 45%;
+            left: 70%;
+            /* Сдвинуть левее */
+            color: rgb(62, 40, 255);
+            animation-delay: 0.9s;
+        }
+
+        .invitation-line:nth-child(4) {
+            top: 59%;
+            left: 70%;
+            /* Сдвинуть левее */
+            color: rgb(172, 255, 95);
+            animation-delay: 1.2s;
+        }
+
+        .invitation-line:nth-child(5) {
+            top: 73%;
+            left: 73%;
+            /* Сдвинуть левее */
+            color: rgb(230, 96, 196);
+            animation-delay: 1.5s;
+        }
+
+        .invitation-line:nth-child(6) {
+            top: 87%;
+            left: 73%;
+            /* Сдвинуть левее */
+            color: rgb(32, 178, 197);
+            animation-delay: 1.8s;
+        }
+
+        /* Кнопка */
+        .btn {
+            position: absolute;
+            top: 73%;
+            left: 19%;
+            transform: translateX(-50%);
+            padding: 1.2vh 3vw;
+            font-size: calc(14px + 0.8vw);
+            background: linear-gradient(45deg, #FF6B6B, #FF8E53);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        /* Анимации */
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
+        }
+
+        /* Добавляем ключевые кадры для конфетти */
+        @keyframes fall {
+            0% {
+                top: -10px;
+                transform: rotate(0deg);
+                opacity: 1;
+            }
+
+            100% {
+                top: 100vh;
+                transform: rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Улучшаем стили для конфетти */
+        .confetti {
+            position: fixed;
+            width: 15px;
+            height: 15px;
+            opacity: 0;
+            z-index: 1000;
+            border-radius: 50%;
+            animation-timing-function: linear;
+        }
+    </style>
 </head>
+
 <body>
+    <div class="scaler">
+        <div class="background-layer"></div>
 
-	<div class="logo" style="background-image: url(img/logo.svg);"></div>
+        <div class="invitation-line">Всем друзьям!</div>
+        <div class="invitation-line">26.07.2025</div>
+        <div class="invitation-line">17:00</div>
+        <div class="invitation-line">"Бухта пара" ул. Скрибиса д. 8</div>
+        <div class="invitation-line">89009267480</div>
 
-	<section class="layers">
-		<div class="layers__container">
-			<div class="layers__item layer-1" style="background-image: url(img/layer-1.jpg);"></div>
-			<div class="layers__item layer-2" style="background-image: url(img/layer-2.png);"></div>
-			<div class="layers__item layer-3">
-				<div class="hero-content">
-					<h1>Natural Forest <span>HTML / CSS</span></h1>
-					<div class="hero-content__p">Creating a beautiful 3D website with a ‘lens effect’</div>
-					<button class="button-start">Start Learning</button>
-				</div>
-			</div>
-			<div class="layers__item layer-4">
-				<canvas class="rain"></canvas>
-			</div>
-			<div class="layerz__item layer-5" style="background-image: url(img/layer-5.png);"></div>
-			<div class="layers__item layer-6" style="background-image: url(img/layer-6.png);"></div>
-		</div>
-	</section>
+        <button class="btn" id="confirmBtn">Я приду!</button>
+    </div>
 
+    <script>
+        // Улучшенный скрипт с конфетти
+        document.getElementById('confirmBtn').addEventListener('click', function () {
+            this.textContent = 'Ура! Жду вас!';
+            this.disabled = true;
+
+            const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFBE0B', '#FB5607', '#FF006E', '#8338EC'];
+            const shapes = ['circle', 'square', 'triangle'];
+
+            // Создаем 150 конфетти для большего эффекта
+            for (let i = 0; i < 150; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+
+                // Случайные свойства
+                const size = Math.random() * 10 + 5;
+                confetti.style.width = `${size}px`;
+                confetti.style.height = `${size}px`;
+                confetti.style.left = `${Math.random() * 100}vw`;
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+
+                // Разные формы
+                const shape = shapes[Math.floor(Math.random() * shapes.length)];
+                if (shape === 'circle') {
+                    confetti.style.borderRadius = '50%';
+                } else if (shape === 'triangle') {
+                    confetti.style.clipPath = 'polygon(50% 0%, 0% 100%, 100% 100%)';
+                    confetti.style.backgroundColor = 'transparent';
+                    confetti.style.borderBottom = `${size}px solid ${colors[Math.floor(Math.random() * colors.length)]}`;
+                    confetti.style.borderLeft = `${size / 2}px solid transparent`;
+                    confetti.style.borderRight = `${size / 2}px solid transparent`;
+                }
+
+                // Анимация с разной скоростью
+                const duration = Math.random() * 3 + 2;
+                const delay = Math.random() * 1;
+                confetti.style.animation = `fall ${duration}s linear ${delay}s forwards`;
+
+                document.body.appendChild(confetti);
+
+                // Удаляем конфетти после анимации
+                setTimeout(() => {
+                    confetti.remove();
+                }, (duration + delay) * 1000);
+            }
+        });
+
+        // Масштабирование всего содержимого
+        function adjustScale() {
+            const scaler = document.querySelector('.scaler');
+            const windowRatio = window.innerWidth / window.innerHeight;
+            const designRatio = 800 / 600; // Соотношение оригинального дизайна
+
+            if (windowRatio > designRatio) {
+                // Широкое окно - масштабируем по высоте
+                scaler.style.width = (window.innerHeight * designRatio) + 'px';
+                scaler.style.height = window.innerHeight + 'px';
+                scaler.style.left = (window.innerWidth - scaler.offsetWidth) / 2 + 'px';
+                scaler.style.top = '0';
+            } else {
+                // Узкое окно - масштабируем по ширине
+                scaler.style.width = window.innerWidth + 'px';
+                scaler.style.height = (window.innerWidth / designRatio) + 'px';
+                scaler.style.left = '0';
+                scaler.style.top = (window.innerHeight - scaler.offsetHeight) / 2 + 'px';
+            }
+        }
+
+        window.addEventListener('resize', adjustScale);
+        window.addEventListener('load', adjustScale);
+    </script>
 </body>
+
 </html>
