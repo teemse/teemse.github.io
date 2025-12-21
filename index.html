@@ -1,264 +1,3507 @@
 <!DOCTYPE html>
-<html lang="ru">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Приглашение на День Рождения</title>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent" />
+    <title>Ninebot ES Controller</title>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Arial', sans-serif;
-            height: 100vh;
-            overflow: hidden;
-            position: relative;
-            background-color: #31ade1;
-            /* Цвет за фоновым изображением */
-            touch-action: manipulation;
-            /* Улучшает отзывчивость на мобильных */
+      :root {
+        --primary: #2d3436;
+        --secondary: #636e72;
+        --accent: #0984e3;
+        --success: #00b894;
+        --danger: #d63031;
+        --warning: #fdcb6e;
+        --info: #6c5ce7;
+        --light: #f8f9fa;
+        --dark: #2d3436;
+        --gray: #dfe6e9;
+        --card-bg: #ffffff;
+        --body-bg: #f5f6fa;
+        --border-radius: 16px;
+        --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        --safe-top: env(safe-area-inset-top);
+        --safe-bottom: env(safe-area-inset-bottom);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      html {
+        height: 100%;
+        -webkit-text-size-adjust: 100%;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI",
+          sans-serif;
+        background: var(--body-bg);
+        color: var(--dark);
+        line-height: 1.6;
+        min-height: 100vh;
+        min-height: -webkit-fill-available;
+        padding: 0;
+        touch-action: manipulation;
+        overscroll-behavior: none;
+      }
+
+      /* Мобильный header */
+      .mobile-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: var(--light);
+        color: white;
+        padding: calc(12px + var(--safe-top, 0px)) 16px 12px;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        height: 60px;
+      }
+
+      .menu-toggle {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 24px;
+        padding: 8px;
+        cursor: pointer;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .mobile-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        flex: 1;
+        text-align: center;
+        margin: 0 10px;
+      }
+
+      .mobile-actions {
+        display: flex;
+        gap: 8px;
+        width: 120px;
+        justify-content: flex-end;
+      }
+
+      /* Боковая панель для мобильных */
+      .sidebar {
+        width: 280px;
+        background: var(--light);
+        color: white;
+        padding: 30px 20px;
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        height: 100dvh;
+        box-shadow: 5px 0 20px rgba(0, 0, 0, 0.1);
+        z-index: 1001;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        padding-top: max(30px, var(--safe-top, 30px));
+        padding-bottom: max(20px, var(--safe-bottom, 20px));
+        transform: translateX(-100%);
+      }
+
+      .sidebar.mobile-visible {
+        transform: translateX(0);
+      }
+
+      .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        display: none;
+      }
+
+      .sidebar-overlay.active {
+        display: block;
+      }
+
+      /* Основное содержимое */
+      .main-content {
+        flex: 1;
+        padding: 0;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-top: 60px;
+        padding-bottom: 80px;
+        padding-left: 16px;
+        padding-right: 16px;
+        width: 100%;
+        min-height: 100vh;
+        position: relative;
+      }
+
+      /* Мобильная навигация (нижняя панель) */
+      .mobile-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--card-bg);
+        border-top: 1px solid var(--gray);
+        display: flex;
+        justify-content: space-around;
+        padding: 8px 4px calc(8px + var(--safe-bottom, 0px));
+        z-index: 999;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        height: 80px;
+      }
+
+      .mobile-nav-item {
+        flex: 1;
+        display: grid;
+        flex-direction: column;
+        align-items: center;
+        padding: 8px 4px;
+        border-radius: 12px;
+        text-decoration: none;
+        color: var(--secondary);
+        font-size: 0.7rem;
+        transition: var(--transition);
+        min-height: 56px;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+      }
+
+      .mobile-nav-item.active {
+        color: var(--accent);
+        background: rgba(9, 132, 227, 0.1);
+      }
+
+      .mobile-nav-icon {
+        font-size: 20px;
+        margin-bottom: 4px;
+      }
+
+      /* Улучшенные карточки для мобильных */
+      .card {
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        padding: 20px;
+        margin-bottom: 16px;
+        margin-top: 20px;
+        box-shadow: var(--shadow);
+        transition: var(--transition);
+        border: 0.5px solid var(--gray);
+      }
+
+      /* После стилей .card */
+      .card-locked {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a52) !important;
+        border-color: #ff4757 !important;
+        color: white !important;
+      }
+
+      .card-unlocked {
+        background: linear-gradient(135deg, #1dd1a1, #10ac84) !important;
+        border-color: #00b894 !important;
+        color: white !important;
+      }
+
+      /* Чтобы текст внутри карточек был читаемым */
+      .card-locked .value-display,
+      .card-unlocked .value-display {
+        color: white !important;
+      }
+
+      .card-locked .value-unit,
+      .card-unlocked .value-unit {
+        color: rgba(255, 255, 255, 0.9) !important;
+      }
+
+      .card-locked .btn-outline,
+      .card-unlocked .btn-outline {
+        background: rgba(255, 255, 255, 0.15) !important;
+        border-color: rgba(255, 255, 255, 0.3) !important;
+        color: white !important;
+      }
+
+      .card-locked .btn-outline:active,
+      .card-unlocked .btn-outline:active {
+        background: rgba(255, 255, 255, 0.25) !important;
+      }
+
+      .card.interactive {
+        cursor: pointer;
+      }
+
+      .card.interactive:active {
+        transform: scale(0.98);
+      }
+
+      /* Кнопки оптимизированные для сенсора */
+      .btn {
+        padding: 14px 20px;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        text-align: center;
+        min-height: 48px;
+        touch-action: manipulation;
+        user-select: none;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn:active {
+        transform: scale(0.95);
+      }
+
+      .btn-primary {
+        background: var(--accent);
+        color: white;
+      }
+
+      .btn-success {
+        background: var(--success);
+        color: white;
+      }
+
+      .btn-danger {
+        background: var(--danger);
+        color: white;
+      }
+
+      .btn-warning {
+        background: var(--warning);
+        color: var(--dark);
+      }
+
+      .btn-info {
+        background: var(--info);
+        color: white;
+      }
+
+      .btn-block {
+        width: 100%;
+      }
+
+      .btn-outline {
+        background: transparent;
+        border: 1px solid var(--gray);
+        box-shadow: var(--shadow);
+        color: var(--secondary);
+      }
+
+      .btn-outline.active {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: rgba(9, 132, 227, 0.1);
+      }
+
+      /* Свайп-панель для быстрого управления */
+      .swipe-control {
+        background: linear-gradient(135deg, var(--accent), var(--info));
+        color: white;
+        padding: 20px;
+        border-radius: var(--border-radius);
+        margin: 16px 0;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        user-select: none;
+      }
+
+      .swipe-track {
+        position: relative;
+        height: 60px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 30px;
+        margin: 20px 0;
+        overflow: hidden;
+      }
+
+      .swipe-handle {
+        position: absolute;
+        left: 4px;
+        top: 4px;
+        background: rgba(255, 255, 255, 0.9);
+        color: var(--light);
+        height: 52px;
+        width: 52px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+        cursor: grab;
+        touch-action: none;
+        z-index: 2;
+      }
+
+      .swipe-progress {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.3);
+        width: 0%;
+        transition: width 0.1s;
+      }
+
+      /* Адаптивная сетка */
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .grid-4 {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .grid-5 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      /* Улучшенные индикаторы */
+      .value-display {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--primary);
+        line-height: 1;
+        text-align: center;
+      }
+
+      .value-unit {
+        font-size: 1rem;
+        color: white;
+        font-weight: 500;
+      }
+
+      /* Ползунки для мобильных */
+      .slider-container {
+        padding: 20px 0;
+      }
+
+      input[type="range"] {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 6px;
+        border-radius: 3px;
+        background: var(--gray);
+        outline: none;
+        margin: 15px 0;
+        position: relative;
+      }
+
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--accent);
+        cursor: pointer;
+        border: 3px solid white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Всплывающие меню */
+      .action-sheet {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--card-bg);
+        border-radius: 20px 20px 0 0;
+        padding: 20px;
+        padding-bottom: calc(20px + var(--safe-bottom, 0px));
+        z-index: 1002;
+        transform: translateY(100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+
+      .action-sheet.active {
+        transform: translateY(0);
+      }
+
+      .action-sheet-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        text-align: center;
+        padding-bottom: 15px;
+        border-bottom: 1px solid var(--gray);
+      }
+
+      .action-sheet-item {
+        padding: 16px;
+        border-bottom: 1px solid var(--gray);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        background: transparent;
+        border: none;
+        width: 100%;
+        text-align: left;
+        font-size: 1rem;
+        color: var(--dark);
+      }
+
+      .action-sheet-item:active {
+        background: var(--gray);
+      }
+
+      .action-sheet-cancel {
+        margin-top: 12px;
+        padding: 16px;
+        text-align: center;
+        color: var(--danger);
+        font-weight: 600;
+        border-radius: 12px;
+        background: rgba(214, 48, 49, 0.1);
+        cursor: pointer;
+        border: none;
+        width: 100%;
+      }
+
+      /* Уведомления для мобильных */
+      .notification {
+        position: fixed;
+        top: 20px;
+        left: 16px;
+        right: 16px;
+        background: var(--card-bg);
+        color: var(--dark);
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+        transform: translateY(-100px);
+        transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        z-index: 1003;
+        border-left: 4px solid var(--success);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+
+      .notification.error {
+        border-left-color: var(--danger);
+      }
+
+      .notification.warning {
+        border-left-color: var(--warning);
+      }
+
+      .notification.info {
+        border-left-color: var(--accent);
+      }
+
+      .notification.show {
+        transform: translateY(0);
+      }
+
+      .notification-icon {
+        font-size: 20px;
+      }
+
+      /* Адаптивные медиа-запросы */
+      @media (max-width: 768px) {
+        .grid-2 {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 8px;
         }
 
-        /* Контейнер для масштабирования */
-        .scaler {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        .grid-3 {
+          grid-template-columns: repeat(2, 1fr);
         }
 
-        /* Фон */
-        .background-layer {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: url('birtday.jpg') no-repeat center center;
-            background-size: contain;
-            filter: brightness(1);
-            z-index: -1;
+        .grid-4 {
+          grid-template-columns: repeat(2, 1fr);
         }
 
-        /* Текст с абсолютным позиционированием */
-        .invitation-line {
-            position: absolute;
-            left: 70%;
-            transform: translateX(-50%);
-            font-size: calc(19px + 1vw);
-            /* Адаптивный размер шрифта */
-            color: rgb(0, 0, 0);
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
-            white-space: nowrap;
-            opacity: 0;
-            animation: fadeInUp 0.8s forwards;
+        .mobile-nav-item {
+          min-height: 52px;
+          padding: 6px 2px;
+          font-size: 0.65rem;
         }
 
-        /* Координаты текста (настройте под ваш дизайн) */
-        .invitation-line:nth-child(2) {
-            top: 31%;
-            left: 70%;
-            /* Сдвинуть левее */
-            color: rgb(100, 0, 0);
-            animation-delay: 0.6s;
+        .mobile-nav-icon {
+          font-size: 18px;
         }
 
-        .invitation-line:nth-child(3) {
-            top: 45%;
-            left: 70%;
-            /* Сдвинуть левее */
-            color: rgb(62, 40, 255);
-            animation-delay: 0.9s;
+        .swipe-control {
+          padding: 16px;
         }
 
-        .invitation-line:nth-child(4) {
-            top: 59%;
-            left: 70%;
-            /* Сдвинуть левее */
-            color: rgb(0, 25, 134);
-            animation-delay: 1.2s;
+        .swipe-handle {
+          width: 50px;
+          height: 50px;
         }
 
-        .invitation-line:nth-child(5) {
-            top: 73%;
-            left: 73%;
-            /* Сдвинуть левее */
-            color: rgb(230, 96, 196);
-            animation-delay: 1.5s;
+        .value-display {
+          font-size: 2rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .grid-4 {
+          grid-template-columns: repeat(2, 1fr);
         }
 
-        .invitation-line:nth-child(6) {
-            top: 87%;
-            left: 73%;
-            /* Сдвинуть левее */
-            color: rgb(32, 178, 197);
-            animation-delay: 1.8s;
+        .grid-5 {
+          grid-template-columns: repeat(3, 1fr);
         }
 
-        /* Кнопка */
-        .btn {
-            position: absolute;
-            top: 73%;
-            left: 19%;
-            transform: translateX(-50%);
-            padding: 1.2vh 3vw;
-            font-size: calc(14px + 0.8vw);
-            background: linear-gradient(45deg, #FF6B6B, #FF8E53);
-            color: white;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        .value-display {
+          font-size: 1.8rem;
         }
 
+        /* .mobile-nav-item span {
+        font-size: 0.65rem;
+      } */
 
-        /* Размеры шрифта для разных устройств */
-        @media (min-width: 1024px) {
-            .invitation-line {
-                font-size: 24px;
-            }
+        .card {
+          padding: 16px;
+        }
+      }
+
+      /* Поддержка ориентации */
+      @media (orientation: landscape) and (max-height: 600px) {
+        .mobile-nav {
+          display: none;
         }
 
-        @media (max-width: 1023px) and (min-width: 768px) {
-            .invitation-line {
-                font-size: 20px;
-            }
+        .main-content {
+          padding-bottom: 20px;
+        }
+      }
+
+      /* Темная тема для мобильных */
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --primary: #ffffff;
+          --secondary: #b2bec3;
+          --accent: #74b9ff;
+          --success: #00cec9;
+          --danger: #ff7675;
+          --warning: #fdcb6e;
+          --info: #a29bfe;
+          --light: #222222;
+          --dark: #ffffff;
+          --gray: #4a4a4a;
+          --card-bg: #222222;
+          --body-bg: #141414;
+          --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+          --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.4);
         }
 
-        @media (max-width: 767px) {
-            .invitation-line {
-                font-size: 11px;
-            }
-
-            .btn {
-                padding: 10px 20px;
-                font-size: 14px;
-            }
+        .mobile-nav {
+          border-top: 1px solid #4a4a4a;
         }
 
-        /* Анимации */
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translate(-50%, 0);
-            }
+        .action-sheet {
+          background: #2d3436;
+        }
+      }
+
+      /* Анимации */
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
         }
 
-        /* Добавляем ключевые кадры для конфетти */
-        @keyframes fall {
-            0% {
-                top: -10px;
-                transform: rotate(0deg);
-                opacity: 1;
-            }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
 
-            100% {
-                top: 100vh;
-                transform: rotate(360deg);
-                opacity: 0;
-            }
+      .animate-slide {
+        animation: slideUp 0.3s ease-out;
+      }
+
+      /* Предотвращение zoom при фокусе на iOS */
+      input,
+      select,
+      textarea {
+        font-size: 16px !important;
+      }
+
+      /* Улучшенный скролл для мобильных */
+      .scrollable {
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
+      }
+
+      /* Скрытие скроллбара на мобильных */
+      .scrollable::-webkit-scrollbar {
+        display: none;
+      }
+
+      /* Вкладки */
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      /* Лого в боковой панели */
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 40px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .logo-icon {
+        font-size: 32px;
+        background: linear-gradient(135deg, var(--accent), var(--info));
+        padding: 12px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 56px;
+        height: 56px;
+      }
+
+      .logo-text h1 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+
+      .logo-text p {
+        font-size: 0.85rem;
+        opacity: 0.8;
+      }
+
+      /* Навигация в боковой панели */
+      .nav-menu {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        flex: 1;
+        overflow-y: auto;
+      }
+
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+        border-radius: 12px;
+        text-decoration: none;
+        color: rgba(255, 255, 255, 0.8);
+        font-weight: 500;
+        transition: var(--transition);
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        text-align: left;
+        font-size: 1rem;
+      }
+
+      .nav-item:hover,
+      .nav-item:active {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        transform: translateX(5px);
+      }
+
+      .nav-item.active {
+        background: var(--accent);
+        color: white;
+        box-shadow: 0 5px 15px rgba(9, 132, 227, 0.3);
+      }
+
+      .nav-item .icon {
+        font-size: 20px;
+        width: 24px;
+        text-align: center;
+      }
+
+      /* Статус в боковой панели */
+      .status-bar {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 2px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .status-indicator {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        margin-bottom: 10px;
+      }
+
+      .status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--success);
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          opacity: 1;
         }
 
-        /* Улучшаем стили для конфетти */
-        .confetti {
-            position: fixed;
-            width: 15px;
-            height: 15px;
-            opacity: 0;
-            z-index: 1000;
-            border-radius: 50%;
-            animation-timing-function: linear;
+        50% {
+          opacity: 0.5;
         }
+
+        100% {
+          opacity: 1;
+        }
+      }
+
+      /* Модифицированные стили для неизвестных регистров */
+      .unknown-registers {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 12px;
+        margin-top: 20px;
+      }
+
+      .register-item {
+        background: var(--gray);
+        padding: 12px;
+        border-radius: 8px;
+        font-family: monospace;
+        font-size: 0.85rem;
+        word-break: break-all;
+      }
+
+      .register-label {
+        font-weight: 600;
+        margin-bottom: 4px;
+        color: var(--secondary);
+      }
+
+      .register-value {
+        color: var(--accent);
+        font-weight: bold;
+      }
+
+      /* Стили для сканирования регистров */
+      .scan-controls {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      .scan-btn {
+        padding: 16px;
+        border-radius: 12px;
+        border: none;
+        color: white;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: var(--transition);
+      }
+
+      .scan-btn:active {
+        transform: scale(0.98);
+      }
+
+      .scan-btn.safe {
+        background: var(--success);
+      }
+
+      .scan-btn.warning {
+        background: var(--warning);
+        color: var(--dark);
+      }
+
+      .scan-btn.danger {
+        background: var(--danger);
+      }
+
+      .scan-progress {
+        height: 8px;
+        background: var(--gray);
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 20px 0;
+      }
+
+      .scan-progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, var(--success), var(--accent));
+        transition: width 0.3s ease;
+        width: 0%;
+      }
+
+      /* LED режимы */
+      .led-mode-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-top: 20px;
+      }
+
+      .led-mode-btn {
+        padding: 16px;
+        background: var(--gray);
+        border-radius: 12px;
+        text-align: center;
+        cursor: pointer;
+        transition: var(--transition);
+        font-size: 0.9rem;
+      }
+
+      .led-mode-btn:active {
+        background: var(--accent);
+        color: white;
+        transform: scale(0.95);
+      }
+
+      /* Цветовая палитра */
+      .color-picker {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 12px;
+        margin-top: 15px;
+      }
+
+      .color-option {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: var(--transition);
+        border: 3px solid transparent;
+      }
+
+      .color-option:active {
+        transform: scale(0.9);
+        border-color: var(--accent);
+      }
+
+      /* Переключатели */
+      .setting-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 0;
+        border-bottom: 1px solid var(--gray);
+      }
+
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 26px;
+      }
+
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: 0.4s;
+        border-radius: 34px;
+      }
+
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+      }
+
+      input:checked + .slider {
+        background-color: var(--success);
+      }
+
+      input:checked + .slider:before {
+        transform: translateX(24px);
+      }
+
+      /* Таблицы для данных */
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+
+      .data-table th,
+      .data-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid var(--gray);
+      }
+
+      .data-table th {
+        background: var(--gray);
+        font-weight: 600;
+      }
+
+      /* Индикаторы ошибок */
+      .error-indicator {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-left: 8px;
+      }
+
+      .error-indicator.none {
+        background: var(--success);
+        color: white;
+      }
+
+      .error-indicator.warning {
+        background: var(--warning);
+        color: var(--dark);
+      }
+
+      .error-indicator.error {
+        background: var(--danger);
+        color: white;
+      }
+
+      /* Статистика */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+        margin-top: 20px;
+      }
+
+      .stat-card {
+        background: var(--gray);
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+      }
+
+      .stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--accent);
+        margin-bottom: 8px;
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        color: var(--secondary);
+      }
+
+      /* Material Design батарея */
+      .material-battery {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 60px;
+        height: 24px;
+        position: relative;
+      }
+
+      .material-battery-shape {
+        width: 50px;
+        height: 20px;
+        border: 2px solid currentColor;
+        border-radius: 4px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .material-battery-shape::after {
+        content: "";
+        position: absolute;
+        right: -6px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 5px;
+        height: 8px;
+        background: currentColor;
+        border-radius: 0 2px 2px 0;
+      }
+
+      .material-battery-fill {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        bottom: 2px;
+        border-radius: 2px;
+        background: currentColor;
+        transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      /* Цветовые темы */
+      .material-battery[data-theme="light"] {
+        color: #333;
+      }
+
+      .material-battery[data-theme="dark"] {
+        color: #fff;
+      }
+
+      .material-battery[data-theme="green"] .material-battery-fill {
+        background: linear-gradient(90deg, #4caf50, #8bc34a);
+      }
+
+      .material-battery[data-theme="gradient"] .material-battery-fill {
+        background: linear-gradient(90deg, #4cd964, #2196f3, #9c27b0);
+      }
+
+      /* Анимация зарядки */
+      @keyframes chargingWave {
+        0% {
+          background-position: 0% 50%;
+        }
+
+        50% {
+          background-position: 100% 50%;
+        }
+
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+
+      .material-battery.charging .material-battery-fill {
+        background: linear-gradient(90deg, #4cd964, #34c759, #4cd964, #34c759);
+        background-size: 200% 100%;
+        animation: chargingWave 2s linear infinite;
+      }
+
+      /* Текст процента с анимацией */
+      .material-battery-percent {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: white;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        z-index: 1;
+      }
+
+      /* Вариант с иконкой внутри */
+      .battery-with-icon {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        /* padding: 10px 15px; */
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+      }
+
+      .battery-label {
+        font-size: 0.9rem;
+        opacity: 0.8;
+      }
+
+      .top-bar {              
+        box-shadow: var(--shadow);
+        border-radius: 16px;
+        padding: 16px;
+        margin-top: 20px;
+      }
+
     </style>
-</head>
+  </head>
 
-<body>
-    <div class="scaler">
-        <div class="background-layer"></div>
+  <body>
+    <!-- Мобильный хедер -->
+    <div class="mobile-header">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <div class="mobile-title" id="mobileTitle">Панель управления</div>
+      <div class="mobile-actions">
+        <button
+          class="btn btn-outline"
+          style="padding: 8px; min-height: 40px; min-width: 40px"
+          onclick="toggleDataRefresh()">
+          🗘
+        </button>
+        <div class="battery-with-icon">
+          <div class="material-battery" id="materialBattery" data-theme="green">
+            <div class="material-battery-shape">
+              <div class="material-battery-fill" id="materialBatteryFill"></div>
+            </div>
+            <span class="material-battery-percent" id="materialBatteryPercent"
+              >?</span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
 
-        <div class="invitation-line">Всем друзьям!</div>
-        <div class="invitation-line">26.07.2025</div>
-        <div class="invitation-line">17:00</div>
-        <div class="invitation-line">"Бухта пара" ул. Скрибиса д. 8</div>
-        <div class="invitation-line">89009267480</div>
+    <!-- Оверлей для боковой панели -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
-        <button class="btn" id="confirmBtn">Я приду!</button>
+    <!-- Боковая панель -->
+    <div class="sidebar">
+      <div class="logo" style="margin-bottom: 30px">
+        <div class="logo-icon">🛴</div>
+        <div class="logo-text">
+          <h1>Ninebot ES</h1>
+          <p>Мобильный контроллер</p>
+        </div>
+      </div>
+
+      <nav class="nav-menu scrollable">
+        <button class="nav-item active" onclick="switchTab('dashboard')">
+          <span class="icon">📊</span>
+          <span>Панель управления</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('extended')">
+          <span class="icon">🔍</span>
+          <span>Детали</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('lights')">
+          <span class="icon">🌈</span>
+          <span>Подсветка</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('stats')">
+          <span class="icon">📈</span>
+          <span>Статистика</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('settings')">
+          <span class="icon">⚙️</span>
+          <span>Настройки</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('research')">
+          <span class="icon">🔬</span>
+          <span>Исследование</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('system')">
+          <span class="icon">💻</span>
+          <span>Система</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('ota')">
+          <span class="icon">🔄</span>
+          <span>Обновление</span>
+        </button>
+      </nav>
+
+      <div class="status-bar">
+        <div class="status-indicator">
+          <div class="status-dot" id="connectionStatus"></div>
+          <div id="connectionText">Загрузка...</div>
+        </div>
+        <div
+          style="
+            font-size: 0.85rem;
+            opacity: 0.8;
+            text-align: center;
+            margin-top: 10px;
+          ">
+          <div>Батарея: <span id="sidebarBattery">0%</span></div>
+          <div id="sidebarSpeed">Скорость: 0 км/ч</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Основное содержимое -->
+    <div class="main-content scrollable">
+      <!-- Панель управления -->
+      <div id="dashboard-tab" class="tab-content active">
+        <!-- Свайп-контроль для разблокировки -->
+        <div class="swipe-control animate-slide" id="swipeControl">
+          <div
+            class="grid-5 top-bar">
+            <div style="text-align: center">
+              <div class="value-display" id="batteryValue">
+                0<span class="value-unit">%</span>
+              </div>
+              <div style="font-size: 0.85rem; color: white; margin-top: 4px">
+                Батарея
+              </div>
+            </div>
+            <!-- <div style="text-align: center">
+              <div class="value-display" id="actualRangeValue">
+                0<span style="font-size: 0.8rem">км</span>
+              </div>
+              <div style="font-size: 0.85rem; color: white; margin-top: 4px">
+                Запас хода
+              </div>
+            </div> -->
+            <div style="text-align: center">
+              <div class="value-display" id="speedValue">
+                0<span class="value-unit">км/ч</span>
+              </div>
+              <div style="font-size: 0.85rem; color: white; margin-top: 4px">
+                Скорость
+              </div>
+            </div>
+            <div style="text-align: center">
+              <div class="value-display" id="tempValue">
+                0<span class="value-unit">°C</span>
+              </div>
+              <div style="font-size: 0.85rem; color: white; margin-top: 4px">
+                Температура
+              </div>
+            </div>
+          </div>
+          <img
+            src="image/head.png"
+            alt="Описание изображения"
+            style="max-width: 100%" />
+          <div
+            style="
+              text-align: center;
+              margin-top: 16px;
+              font-size: 0.9rem;
+              color: white;
+            ">
+            <span id="statusText">Загрузка...</span>
+          </div>
+          <div class="swipe-track">
+            <div class="swipe-progress" id="swipeProgress"></div>
+            <div
+              class="swipe-handle"
+              id="swipeHandle"
+              ontouchstart="handleSwipeStart(event)"
+              ontouchmove="handleSwipeMove(event)"
+              ontouchend="handleSwipeEnd(event)">
+              ➜
+            </div>
+          </div>
+          <div
+            style="font-size: 0.85rem; opacity: 0.9; margin-top: 12px"
+            id="swipeInstruction">
+            Потяните вправо чтобы разблокировать
+          </div>
+        </div>
+
+        <button
+          class="btn btn-outline"
+          onclick="sendCommand('open_deck')"
+          style="
+            padding: 13px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-radius: 16px;
+            margin-bottom: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--gray);
+            color: var(--secondary);
+            font-weight: 600;
+          ">
+          <span style="font-size: 20px">📦</span>
+          <span style="font-size: 0.75rem">Открыть деку</span>
+        </button>
+
+        <!-- Быстрые действия -->
+        <div class="card animate-slide">
+          <div
+            style="
+              font-weight: 600;
+              margin-bottom: 16px;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+            ">
+            <span>⚡</span> Быстрые действия
+          </div>
+          <div class="grid-3">
+            <button
+              class="btn btn-outline"
+              onclick="sendCommand('find_scooter')"
+              style="flex-direction: column; padding: 12px">
+              <span style="font-size: 20px">🔍</span>
+              <span style="font-size: 0.75rem">Найти</span>
+            </button>
+            <button
+              class="btn btn-outline"
+              onclick="showActionSheet('power')"
+              style="flex-direction: column; padding: 12px">
+              <span style="font-size: 20px">🔋</span>
+              <span style="font-size: 0.75rem">Питание</span>
+            </button>
+            <button
+              class="btn btn-outline"
+              onclick="toggleDataRefresh()"
+              style="flex-direction: column; padding: 12px">
+              <span style="font-size: 20px">🔄</span>
+              <span style="font-size: 0.75rem">Автообновление</span>
+            </button>
+            <button
+              class="btn btn-outline"
+              onclick="sendCommand('toggle_limit')"
+              style="flex-direction: column; padding: 12px">
+              <span style="font-size: 20px">📏</span>
+              <span style="font-size: 0.75rem">Лимит</span>
+            </button>
+            <button
+              class="btn btn-outline"
+              onclick="toggleCruise()"
+              style="flex-direction: column; padding: 12px"
+              id="cruiseBtn">
+              <span style="font-size: 20px">⏱️</span>
+              <span style="font-size: 0.75rem">Круиз</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Режимы скорости -->
+        <div class="card animate-slide">
+          <div
+            style="
+              font-weight: 600;
+              margin-bottom: 16px;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+            ">
+            <span>🎮</span> Режим скорости
+          </div>
+          <div class="grid-5">
+            <button
+              class="btn btn-outline"
+              onclick="sendCommand('mode_eco')"
+              id="modeEcoBtn"
+              style="padding: 12px">
+              Эко
+            </button>
+            <button
+              class="btn btn-outline"
+              onclick="sendCommand('mode_normal')"
+              id="modeNormalBtn"
+              style="padding: 12px">
+              Стандарт
+            </button>
+            <button
+              class="btn btn-outline active"
+              onclick="sendCommand('mode_sport')"
+              id="modeSportBtn"
+              style="padding: 12px">
+              Спорт
+            </button>
+          </div>
+        </div>
+
+        <!-- Управление функциями -->
+        <div class="card animate-slide">
+          <div
+            style="
+              font-weight: 600;
+              margin-bottom: 16px;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+            ">
+            <span>🔧</span> Управление
+          </div>
+          <div class="grid-2">
+            <button
+              class="btn btn-outline"
+              onclick="toggleFunction('headlight')"
+              id="headlightBtn"
+              style="padding: 14px">
+              <span>💡</span> Фары
+            </button>
+            <button
+              class="btn btn-outline"
+              onclick="toggleFunction('beep')"
+              id="beepBtn"
+              style="padding: 14px">
+              <span>🔊</span> Звук
+            </button>
+          </div>
+        </div>
+
+        <!-- Лимит скорости -->
+        <div class="card animate-slide">
+          <div
+            style="
+              font-weight: 600;
+              margin-bottom: 16px;
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+            ">
+            <div style="display: flex; align-items: center; gap: 8px">
+              <span>📏</span> Лимит скорости
+            </div>
+            <div
+              style="font-size: 1.2rem; font-weight: 700"
+              id="speedLimitValue">
+              35 км/ч
+            </div>
+          </div>
+          <div class="slider-container">
+            <input
+              type="range"
+              min="15"
+              max="35"
+              value="35"
+              step="5"
+              class="speed-slider"
+              id="speedSlider"
+              oninput="updateSpeedLimit(this.value)" />
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                font-size: 0.85rem;
+                color: var(--secondary);
+              ">
+              <span>15</span>
+              <span>20</span>
+              <span>25</span>
+              <span>30</span>
+              <span>35</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Расширенная информация -->
+      <div id="extended-tab" class="tab-content">
+        <!-- Системная информация -->
+        <div class="card animate-slide">
+          <h3 style="margin-bottom: 16px">🔧 Системная информация</h3>
+          <div class="grid-4">
+            <div style="text-align: center">
+              <div class="value-display" id="driveVoltageValue">
+                0.0<span style="font-size: 0.8rem">V</span>
+              </div>
+              <div
+                style="
+                  font-size: 0.85rem;
+                  color: var(--secondary);
+                  margin-top: 4px;
+                ">
+                Напряжение
+              </div>
+            </div>
+            <div style="text-align: center">
+              <div class="value-display" id="motorCurrentValue">
+                0.0<span style="font-size: 0.8rem">A</span>
+              </div>
+              <div
+                style="
+                  font-size: 0.85rem;
+                  color: var(--secondary);
+                  margin-top: 4px;
+                ">
+                Ток
+              </div>
+            </div>
+            <div style="text-align: center">
+              <div class="value-display" id="powerValue">
+                0<span style="font-size: 0.8rem">W</span>
+              </div>
+              <div
+                style="
+                  font-size: 0.85rem;
+                  color: var(--secondary);
+                  margin-top: 4px;
+                ">
+                Мощность
+              </div>
+            </div>
+            <div style="text-align: center">
+              <div class="value-display" id="avgSpeedValue">
+                0<span style="font-size: 0.8rem">км/ч</span>
+              </div>
+              <div
+                style="
+                  font-size: 0.85rem;
+                  color: var(--secondary);
+                  margin-top: 4px;
+                ">
+                Ср. скорость
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Температуры -->
+        <div class="card animate-slide">
+          <h3 style="margin-bottom: 16px">🌡️ Температуры</h3>
+          <div class="grid-4">
+            <div style="text-align: center">
+              <div class="value-display" id="bodyTempValue">0°</div>
+              <div
+                style="
+                  font-size: 0.85rem;
+                  color: var(--secondary);
+                  margin-top: 4px;
+                ">
+                Корпус
+              </div>
+            </div>
+            <div style="text-align: center">
+              <div class="value-display" id="bat1TempValue">0°</div>
+              <div
+                style="
+                  font-size: 0.85rem;
+                  color: var(--secondary);
+                  margin-top: 4px;
+                ">
+                Батарея 1
+              </div>
+            </div>
+            <div style="text-align: center">
+              <div class="value-display" id="bat2TempValue">0°</div>
+              <div
+                style="
+                  font-size: 0.85rem;
+                  color: var(--secondary);
+                  margin-top: 4px;
+                ">
+                Батарея 2
+              </div>
+            </div>
+            <div style="text-align: center">
+              <div class="value-display" id="mosTempValue">0°</div>
+              <div
+                style="
+                  font-size: 0.85rem;
+                  color: var(--secondary);
+                  margin-top: 4px;
+                ">
+                MOS
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Батареи -->
+        <div class="card animate-slide">
+          <h3 style="margin-bottom: 16px">🔋 Батареи</h3>
+          <div class="grid-4">
+            <div style="text-align: center">
+              <div class="value-display" id="battery1Value">0%</div>
+              <div
+                style="
+                  font-size: 0.85rem;
+                  color: var(--secondary);
+                  margin-top: 4px;
+                ">
+                Батарея 1
+              </div>
+            </div>
+            <div style="text-align: center">
+              <div class="value-display" id="battery2Value">0%</div>
+              <div
+                style="
+                  font-size: 0.85rem;
+                  color: var(--secondary);
+                  margin-top: 4px;
+                ">
+                Батарея 2
+              </div>
+            </div>
+            <div style="text-align: center">
+              <div class="value-display" id="actualRangeValue">
+                0<span style="font-size: 0.8rem">км</span>
+              </div>
+              <div
+                style="
+                  font-size: 0.85rem;
+                  color: var(--secondary);
+                  margin-top: 4px;
+                ">
+                Запас хода
+              </div>
+            </div>
+            <div style="text-align: center">
+              <div class="value-display" id="predictedRangeValue">
+                0<span style="font-size: 0.8rem">км</span>
+              </div>
+              <div
+                style="
+                  font-size: 0.85rem;
+                  color: var(--secondary);
+                  margin-top: 4px;
+                ">
+                Прогноз
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Информация о системе -->
+        <div class="card animate-slide">
+          <h3 style="margin-bottom: 16px">📊 Система</h3>
+          <div class="grid-2" style="gap: 16px">
+            <div>
+              <p>
+                <strong>Серийный номер:</strong>
+                <span id="serialValue">N/A</span>
+              </p>
+              <p>
+                <strong>BMS версия:</strong>
+                <span id="bmsVersionValue">N/A</span>
+              </p>
+              <p>
+                <strong>Внешняя BMS:</strong>
+                <span id="bms2VersionValue">N/A</span>
+              </p>
+              <p>
+                <strong>BLE версия:</strong>
+                <span id="bleVersionValue">N/A</span>
+              </p>
+            </div>
+            <div>
+              <p>
+                <strong>Статус:</strong> <span id="boolStatusValue">N/A</span>
+              </p>
+              <p>
+                <strong>Тревоги:</strong> <span id="alarmStatusValue">Нет</span>
+              </p>
+              <p><strong>Ошибки:</strong> <span id="errorValue">0</span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Подсветка -->
+      <div id="lights-tab" class="tab-content">
+        <div class="card animate-slide">
+          <h3 style="margin-bottom: 16px">🌈 Режимы подсветки</h3>
+          <div class="led-mode-grid">
+            <div class="led-mode-btn" onclick="setLedMode(0)" id="ledMode0">
+              Выключено
+            </div>
+            <div class="led-mode-btn" onclick="setLedMode(1)" id="ledMode1">
+              Одноцветное дыхание
+            </div>
+            <div class="led-mode-btn" onclick="setLedMode(2)" id="ledMode2">
+              Всецветное дыхание
+            </div>
+            <div class="led-mode-btn" onclick="setLedMode(3)" id="ledMode3">
+              Два цвета раздельно
+            </div>
+            <div class="led-mode-btn" onclick="setLedMode(4)" id="ledMode4">
+              Все цвета раздельно
+            </div>
+            <div class="led-mode-btn" onclick="setLedMode(5)" id="ledMode5">
+              Одноцветное мерцание
+            </div>
+            <div class="led-mode-btn" onclick="setLedMode(6)" id="ledMode6">
+              Всецветное мерцание
+            </div>
+            <div class="led-mode-btn" onclick="setLedMode(7)" id="ledMode7">
+              Полиция 1
+            </div>
+            <div class="led-mode-btn" onclick="setLedMode(8)" id="ledMode8">
+              Полиция 2
+            </div>
+            <div class="led-mode-btn" onclick="setLedMode(9)" id="ledMode9">
+              Полиция 3
+            </div>
+          </div>
+        </div>
+
+        <div class="card animate-slide">
+          <h3 style="margin-bottom: 16px">🎨 Цвета подсветки</h3>
+          <div style="margin: 20px 0">
+            <h4 style="margin-bottom: 12px">Цвет 1 (Основной)</h4>
+            <div class="color-picker">
+              <div
+                class="color-option"
+                style="background: rgb(0, 0, 255)"
+                onclick="setLedColor(1, 0xA0F0)"
+                title="Синий"></div>
+              <div
+                class="color-option"
+                style="background: rgb(0, 255, 0)"
+                onclick="setLedColor(1, 0x50F0)"
+                title="Зеленый"></div>
+              <div
+                class="color-option"
+                style="background: rgb(255, 0, 0)"
+                onclick="setLedColor(1, 0x00F0)"
+                title="Красный"></div>
+              <div
+                class="color-option"
+                style="background: rgb(255, 0, 255)"
+                onclick="setLedColor(1, 0xC8F0)"
+                title="Фиолетовый"></div>
+              <div
+                class="color-option"
+                style="background: rgb(255, 255, 255)"
+                onclick="setLedColor(1, 0xF0F0)"
+                title="Белый"></div>
+              <div
+                class="color-option"
+                style="background: rgb(255, 255, 0)"
+                onclick="setLedColor(1, 0xFFF0)"
+                title="Желтый"></div>
+            </div>
+          </div>
+
+          <div style="margin: 20px 0">
+            <h4 style="margin-bottom: 12px">Цвет 2 (Дополнительный)</h4>
+            <div class="color-picker">
+              <div
+                class="color-option"
+                style="background: rgb(0, 0, 255)"
+                onclick="setLedColor(2, 0xA0F0)"
+                title="Синий"></div>
+              <div
+                class="color-option"
+                style="background: rgb(0, 255, 0)"
+                onclick="setLedColor(2, 0x50F0)"
+                title="Зеленый"></div>
+              <div
+                class="color-option"
+                style="background: rgb(255, 0, 0)"
+                onclick="setLedColor(2, 0x00F0)"
+                title="Красный"></div>
+              <div
+                class="color-option"
+                style="background: rgb(255, 0, 255)"
+                onclick="setLedColor(2, 0xC8F0)"
+                title="Фиолетовый"></div>
+              <div
+                class="color-option"
+                style="background: rgb(255, 255, 255)"
+                onclick="setLedColor(2, 0xF0F0)"
+                title="Белый"></div>
+              <div
+                class="color-option"
+                style="background: rgb(255, 255, 0)"
+                onclick="setLedColor(2, 0xFFF0)"
+                title="Желтый"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Статистика -->
+      <div id="stats-tab" class="tab-content">
+        <div class="card animate-slide">
+          <h3 style="margin-bottom: 16px">📈 Статистика поездок</h3>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-value" id="singleMileageValue">0</div>
+              <div class="stat-label">Пробег поездки (км)</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="singleRideTimeValue">0</div>
+              <div class="stat-label">Время поездки (мин)</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="totalOperationTimeValue">0</div>
+              <div class="stat-label">Общее время (ч)</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="totalRideTimeValue">0</div>
+              <div class="stat-label">Время движения (ч)</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card animate-slide">
+          <h3 style="margin-bottom: 16px">📊 Дополнительная информация</h3>
+          <div style="margin-top: 15px">
+            <p>
+              <strong>Режим работы:</strong> <span id="workModeValue">N/A</span>
+            </p>
+            <p>
+              <strong>Лимит скорости:</strong>
+              <span id="speedLimitValue">0</span> км/ч
+            </p>
+            <p>
+              <strong>Код ошибки:</strong> <span id="errorCodeValue">0</span>
+            </p>
+            <p>
+              <strong>Круиз-контроль:</strong>
+              <span id="cruiseValue">ВЫКЛ</span>
+            </p>
+            <p><strong>Фары:</strong> <span id="headlightValue">ВКЛ</span></p>
+            <p><strong>Звук:</strong> <span id="beepValue">ВКЛ</span></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Настройки -->
+      <div id="settings-tab" class="tab-content">
+        <div class="card animate-slide">
+          <h3 style="margin-bottom: 16px">⚙️ Настройки функций</h3>
+          <div style="margin-top: 20px">
+            <div class="setting-row">
+              <span class="setting-label">Фары всегда включены</span>
+              <label class="switch">
+                <input
+                  type="checkbox"
+                  id="headlightAlwaysOn"
+                  onchange="toggleSetting('headlight_always_on', this.checked)" />
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-row">
+              <span class="setting-label">Скорость в MPH (вместо KM/H)</span>
+              <label class="switch">
+                <input
+                  type="checkbox"
+                  id="speedInMPH"
+                  onchange="toggleSetting('speed_mph', this.checked)" />
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-row">
+              <span class="setting-label"
+                >Отключить тревогу при блокировке</span
+              >
+              <label class="switch">
+                <input
+                  type="checkbox"
+                  id="noAlarmLock"
+                  onchange="toggleSetting('no_alarm_lock', this.checked)" />
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-row">
+              <span class="setting-label">Bluetooth broadcast</span>
+              <label class="switch">
+                <input
+                  type="checkbox"
+                  id="btBroadcast"
+                  onchange="toggleSetting('bt_broadcast', this.checked)" />
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-row">
+              <span class="setting-label">Кнопка смены режима скорости</span>
+              <label class="switch">
+                <input
+                  type="checkbox"
+                  id="buttonSpeedMode"
+                  checked
+                  onchange="toggleSetting('button_speed_mode', this.checked)" />
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="card animate-slide">
+          <h3 style="margin-bottom: 16px">🔊 Настройки звука и света</h3>
+          <div style="margin-top: 20px">
+            <div class="setting-row">
+              <span class="setting-label">Звуковой сигнал</span>
+              <label class="switch">
+                <input
+                  type="checkbox"
+                  id="beepAlarm"
+                  checked
+                  onchange="toggleBeepAlarm(this.checked)" />
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-row">
+              <span class="setting-label">Общий звук</span>
+              <label class="switch">
+                <input
+                  type="checkbox"
+                  id="beepTotal"
+                  checked
+                  onchange="toggleBeepTotal(this.checked)" />
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-row">
+              <span class="setting-label">Фары</span>
+              <label class="switch">
+                <input
+                  type="checkbox"
+                  id="headlight"
+                  checked
+                  onchange="toggleHeadlight(this.checked)" />
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Исследование -->
+      <div id="research-tab" class="tab-content">
+        <div class="card animate-slide">
+          <h3 style="margin-bottom: 16px">🔍 Сканирование регистров</h3>
+          <p style="margin-bottom: 20px; color: var(--secondary)">
+            Обнаружение новых команд и регистров самоката
+          </p>
+
+          <div class="scan-controls">
+            <button class="scan-btn safe" onclick="startSafeScan()">
+              🔒 Безопасное сканирование (чтение)
+            </button>
+            <button class="scan-btn warning" onclick="startBruteForceScan()">
+              ⚠️ Брутфорс сканирование (запись)
+            </button>
+            <button class="scan-btn danger" onclick="startDeepScan()">
+              🚨 Глубокое сканирование
+            </button>
+          </div>
+
+          <div class="scan-progress">
+            <div
+              class="scan-progress-bar"
+              id="scanProgress"
+              style="width: 0%"></div>
+          </div>
+
+          <div style="text-align: center; margin: 10px 0">
+            <span id="scanStatus">Готов к сканированию</span>
+            <span id="scanProgressText">0/256</span>
+          </div>
+
+          <div
+            style="
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 8px;
+              margin-top: 20px;
+            ">
+            <input
+              type="text"
+              id="manualIndex"
+              placeholder="Индекс (hex)"
+              style="
+                padding: 12px;
+                border: 1px solid var(--gray);
+                border-radius: 8px;
+                font-family: monospace;
+                width: 100%;
+                grid-column: 1;
+              " />
+            <input
+              type="text"
+              id="manualValue"
+              placeholder="Значение (hex)"
+              style="
+                padding: 12px;
+                border: 1px solid var(--gray);
+                border-radius: 8px;
+                font-family: monospace;
+                width: 100%;
+                grid-column: 2;
+              " />
+            <button
+              class="btn btn-primary"
+              onclick="manualTest()"
+              style="padding: 12px 16px; width: 100%; grid-column: 1 / span 2">
+              Тестировать
+            </button>
+          </div>
+        </div>
+
+        <div class="card animate-slide">
+          <h3 style="margin-bottom: 16px">🎯 Найденные регистры</h3>
+          <div id="foundRegisters" style="max-height: 300px; overflow-y: auto">
+            <p
+              style="
+                color: var(--secondary);
+                text-align: center;
+                padding: 20px;
+              ">
+              Найденные регистры появятся здесь после сканирования
+            </p>
+          </div>
+        </div>
+
+        <div class="card animate-slide">
+          <h3 style="margin-bottom: 16px">📋 Лог пакетов</h3>
+          <div style="margin-bottom: 15px; display: flex; gap: 8px">
+            <button
+              class="btn btn-primary"
+              onclick="startPacketLog()"
+              style="flex: 1">
+              Начать логирование
+            </button>
+            <button
+              class="btn btn-danger"
+              onclick="stopPacketLog()"
+              style="flex: 1">
+              Остановить
+            </button>
+            <button
+              class="btn"
+              onclick="clearPacketLog()"
+              style="flex: 1; background: var(--secondary); color: white">
+              Очистить
+            </button>
+          </div>
+          <div
+            id="packetLog"
+            style="
+              max-height: 200px;
+              overflow-y: auto;
+              background: var(--gray);
+              padding: 10px;
+              border-radius: 5px;
+              font-family: monospace;
+              font-size: 0.8rem;
+            "></div>
+        </div>
+
+        <div class="card animate-slide">
+          <h3 style="margin-bottom: 16px">📋 Неизвестные регистры</h3>
+          <div class="unknown-registers">
+            <div class="register-item">
+              <div class="register-label">Регистр 0x51, Курок газа:</div>
+              <div class="register-value" id="UnkReg18">N/A</div>
+            </div>
+            <div class="register-item">
+              <div class="register-label">Регистр 0x52, Тормоз:</div>
+              <div class="register-value" id="UnkReg19">N/A</div>
+            </div>
+            <div class="register-item">
+              <div class="register-label">Регистр 0x2C(Как 56):</div>
+              <div class="register-value" id="UnkReg8">N/A</div>
+            </div>
+            <div class="register-item">
+              <div class="register-label">Регистр 0x4C(не записывается):</div>
+              <div class="register-value" id="UnkReg15">N/A</div>
+            </div>
+            <div class="register-item">
+              <div class="register-label">Регистр 0x54(Как 56):</div>
+              <div class="register-value" id="UnkReg20">N/A</div>
+            </div>
+            <div class="register-item">
+              <div class="register-label">Регистр 0x56(Записывается1-5):</div>
+              <div class="register-value" id="UnkReg21">N/A</div>
+            </div>
+            <div class="register-item">
+              <div class="register-label">Регистр 0x57не записывается:</div>
+              <div class="register-value" id="UnkReg22">N/A</div>
+            </div>
+            <div class="register-item">
+              <div class="register-label">Регистр 0x66(не записывается):</div>
+              <div class="register-value" id="UnkReg26">N/A</div>
+            </div>
+            <div class="register-item">
+              <div class="register-label">
+                Регистр 0x7F(не трогать, ошибка 32):
+              </div>
+              <div class="register-value" id="UnkReg28">N/A</div>
+            </div>
+            <div class="register-item">
+              <div class="register-label">
+                Регистр 0x80(Фара:0-Выкл,1-Вкл,2-Строб):
+              </div>
+              <div class="register-value" id="UnkReg30">N/A</div>
+            </div>
+            <div class="register-item">
+              <div class="register-label">Регистр 0x0:</div>
+              <div class="register-value" id="UnkReg1">N/A</div>
+            </div>
+            <div class="register-item">
+              <div class="register-label">Регистр 0x1:</div>
+              <div class="register-value" id="UnkReg2">N/A</div>
+            </div>
+            <!-- Добавлены остальные регистры для компактности -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Система -->
+      <div id="system-tab" class="tab-content">
+        <div class="card animate-slide">
+          <h3 style="margin-bottom: 16px">🛠️ Системные команды</h3>
+          <div class="grid-3" style="margin-top: 20px">
+            <button
+              class="btn btn-warning"
+              onclick="sendCommand('find_scooter')">
+              <span>🔍</span> Найти самокат
+            </button>
+            <button class="btn btn-info" onclick="sendCommand('reboot')">
+              <span>🔄</span> Перезагрузить
+            </button>
+            <button class="btn btn-danger" onclick="sendCommand('power_off')">
+              <span>⭕</span> Выключить
+            </button>
+          </div>
+        </div>
+
+        <div class="card animate-slide">
+          <h3 style="margin-bottom: 16px">💻 Системная информация</h3>
+          <div style="margin-top: 15px">
+            <p>
+              <strong>Текущий режим подсветки:</strong>
+              <span id="currentLedMode">Неизвестно</span>
+            </p>
+            <p>
+              <strong>Версия прошивки контроллера:</strong>
+              <span id="fwVersion">N/A</span>
+            </p>
+            <p>
+              <strong>Рабочая система:</strong> <span id="workSystem">1</span>
+            </p>
+            <p>
+              <strong>Статус блокировки:</strong>
+              <span id="lockStatus">Заблокирован</span>
+            </p>
+            <p>
+              <strong>Состояние двигателя:</strong>
+              <span id="engineStatus">ВКЛ</span>
+            </p>
+          </div>
+        </div>
+
+        <div class="card animate-slide">
+          <h3 style="margin-bottom: 16px">🔍 Диагностика</h3>
+          <div style="margin-top: 15px">
+            <p>
+              <strong>Код ошибки:</strong> <span id="diagnosticError">0</span>
+            </p>
+            <p>
+              <strong>Код тревоги:</strong> <span id="diagnosticAlarm">0</span>
+            </p>
+            <p>
+              <strong>Булевы статусы:</strong>
+              <span id="diagnosticBool">0x0000</span>
+            </p>
+            <p>
+              <strong>Быстрые статусы:</strong>
+              <span id="diagnosticQuickBool">0x0000</span>
+            </p>
+            <button
+              class="btn btn-primary"
+              onclick="loadDiagnostics()"
+              style="margin-top: 10px; width: 100%">
+              Обновить диагностику
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- OTA Обновление -->
+      <div id="ota-tab" class="tab-content">
+        <div class="card animate-slide">
+          <h3 style="margin-bottom: 16px">💻 Информация о системе</h3>
+          <div id="systemInfo" style="margin-top: 15px">
+            <p><strong>Загрузка информации...</strong></p>
+          </div>
+          <button
+            class="btn btn-primary"
+            onclick="loadSystemInfo()"
+            style="margin-top: 10px; width: 100%">
+            🔄 Обновить информацию
+          </button>
+        </div>
+
+        <div class="card animate-slide">
+          <h3 style="margin-bottom: 16px">🚀 OTA Обновление прошивки</h3>
+          <div style="margin: 20px 0">
+            <p>
+              <strong>Текущая версия:</strong>
+              <span id="currentVersion">Загрузка...</span>
+            </p>
+            <p>
+              <strong>Свободная память:</strong> <span id="freeMemory">-</span>
+            </p>
+            <p><strong>ID устройства:</strong> <span id="deviceId">-</span></p>
+          </div>
+
+          <div
+            style="
+              background: var(--gray);
+              padding: 20px;
+              border-radius: 10px;
+              margin: 20px 0;
+            ">
+            <h4 style="margin-bottom: 15px">📤 Стандартный OTA интерфейс</h4>
+            <p style="margin-bottom: 15px">
+              Используйте встроенный интерфейс ESP8266 для обновления:
+            </p>
+
+            <div class="grid-2" style="margin-bottom: 15px">
+              <a
+                href="/update"
+                target="_blank"
+                class="btn btn-success"
+                style="text-decoration: none; width: 100%">
+                📤 Открыть OTA интерфейс
+              </a>
+              <button
+                class="btn btn-info"
+                onclick="checkForUpdates()"
+                style="width: 100%">
+                🔍 Проверить обновления
+              </button>
+            </div>
+
+            <div
+              style="
+                margin-top: 15px;
+                font-size: 0.9rem;
+                color: var(--secondary);
+              ">
+              <p><strong>Логин:</strong> admin</p>
+              <p><strong>Пароль:</strong> NinebotOTA123!</p>
+            </div>
+          </div>
+
+          <div style="margin-top: 20px">
+            <h4 style="margin-bottom: 15px">🔄 Альтернативная загрузка</h4>
+            <form
+              id="otaForm"
+              action="/update"
+              method="POST"
+              enctype="multipart/form-data"
+              target="_blank">
+              <div style="margin: 15px 0">
+                <label
+                  style="
+                    display: block;
+                    margin-bottom: 10px;
+                    font-weight: bold;
+                  ">
+                  📤 Выберите файл прошивки (.bin):
+                </label>
+                <input
+                  type="file"
+                  name="update"
+                  accept=".bin"
+                  required
+                  style="
+                    width: 100%;
+                    padding: 10px;
+                    border: 2px dashed var(--gray);
+                    border-radius: 8px;
+                    background: var(--card-bg);
+                  " />
+              </div>
+
+              <button type="submit" class="btn btn-warning" style="width: 100%">
+                ⚡ Загрузить через форму
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div class="card animate-slide">
+          <h3 style="margin-bottom: 16px">📊 Статус OTA</h3>
+          <div id="otaStatus" style="margin-top: 15px">
+            <p>
+              <strong>Последнее обновление:</strong>
+              <span id="lastUpdate">Неизвестно</span>
+            </p>
+            <p>
+              <strong>Статус:</strong>
+              <span id="updateStatus">Готов к обновлению</span>
+            </p>
+          </div>
+
+          <div class="grid-2" style="margin-top: 15px">
+            <button
+              class="btn btn-info"
+              onclick="testOTAConnection()"
+              style="width: 100%">
+              🧪 Тест OTA соединения
+            </button>
+            <button
+              class="btn btn-danger"
+              onclick="showOTAInstructions()"
+              style="width: 100%">
+              📖 Инструкция
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Мобильная навигация -->
+    <div class="mobile-nav">
+      <button class="mobile-nav-item active" onclick="switchTab('dashboard')">
+        <span class="mobile-nav-icon">📊</span>
+        <span>Главная</span>
+      </button>
+      <button class="mobile-nav-item" onclick="switchTab('lights')">
+        <span class="mobile-nav-icon">🌈</span>
+        <span>Свет</span>
+      </button>
+      <button class="mobile-nav-item" onclick="switchTab('stats')">
+        <span class="mobile-nav-icon">📈</span>
+        <span>Статы</span>
+      </button>
+      <button class="mobile-nav-item" onclick="showActionSheet('more')">
+        <span class="mobile-nav-icon">⋯</span>
+        <span>Еще</span>
+      </button>
+    </div>
+
+    <!-- Всплывающее меню -->
+    <div class="action-sheet" id="actionSheet">
+      <div class="action-sheet-title" id="actionSheetTitle">Действия</div>
+      <div id="actionSheetContent">
+        <!-- Контент будет добавляться динамически -->
+      </div>
+      <button class="action-sheet-cancel" onclick="hideActionSheet()">
+        Отмена
+      </button>
+    </div>
+
+    <!-- Уведомление -->
+    <div class="notification" id="notification">
+      <div class="notification-icon">✅</div>
+      <div id="notificationText">Готово</div>
     </div>
 
     <script>
-        // Улучшенный скрипт с конфетти
-        document.getElementById('confirmBtn').addEventListener('click', function () {
-            this.textContent = 'Ура! Жду вас!';
-            this.disabled = true;
+      // Глобальные переменные
+      let isMobile =
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent
+        );
+      let isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      let currentTab = "dashboard";
+      let isLocked = true;
+      let autoRefreshInterval = null;
+      let lastTapTime = 0;
+      let scanActive = false;
 
-            const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFBE0B', '#FB5607', '#FF006E', '#8338EC'];
-            const shapes = ['circle', 'square', 'triangle'];
+      // Инициализация
+      document.addEventListener("DOMContentLoaded", function () {
+        initApp();
+        loadStatus();
+        startAutoRefresh();
 
-            // Создаем 150 конфетти для большего эффекта
-            for (let i = 0; i < 150; i++) {
-                const confetti = document.createElement('div');
-                confetti.className = 'confetti';
+        // Настройка безопасных зон для iOS
+        if (isIOS) {
+          setupIOSSafeAreas();
+        }
+      });
 
-                // Случайные свойства
-                const size = Math.random() * 10 + 5;
-                confetti.style.width = `${size}px`;
-                confetti.style.height = `${size}px`;
-                confetti.style.left = `${Math.random() * 100}vw`;
-                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      // Инициализация приложения
+      function initApp() {
+        // Инициализация свайп-контроля
+        initSwipeControl();
 
-                // Разные формы
-                const shape = shapes[Math.floor(Math.random() * shapes.length)];
-                if (shape === 'circle') {
-                    confetti.style.borderRadius = '50%';
-                } else if (shape === 'triangle') {
-                    confetti.style.clipPath = 'polygon(50% 0%, 0% 100%, 100% 100%)';
-                    confetti.style.backgroundColor = 'transparent';
-                    confetti.style.borderBottom = `${size}px solid ${colors[Math.floor(Math.random() * colors.length)]}`;
-                    confetti.style.borderLeft = `${size / 2}px solid transparent`;
-                    confetti.style.borderRight = `${size / 2}px solid transparent`;
-                }
+        // Настройка двойного нажатия
+        setupDoubleTap();
 
-                // Анимация с разной скоростью
-                const duration = Math.random() * 3 + 2;
-                const delay = Math.random() * 1;
-                confetti.style.animation = `fall ${duration}s linear ${delay}s forwards`;
+        // Настройка долгого нажатия
+        setupLongPress();
 
-                document.body.appendChild(confetti);
+        const slider = document.getElementById("speedSlider");
+        if (slider) {
+          updateSpeedLimit(slider.value);
+        }
+        // Инициализация слайдера скорости
 
-                // Удаляем конфетти после анимации
-                setTimeout(() => {
-                    confetti.remove();
-                }, (duration + delay) * 1000);
-            }
+        updateSpeedLimit(35);
+      }
+
+      // Настройка безопасных зон для iOS
+      function setupIOSSafeAreas() {
+        const style = document.createElement("style");
+        style.textContent = `
+        .mobile-header { padding-top: calc(12px + constant(safe-area-inset-top)) !important; }
+        .sidebar { padding-top: calc(30px + constant(safe-area-inset-top)) !important; }
+        .mobile-nav { padding-bottom: calc(8px + constant(safe-area-inset-bottom)) !important; }
+        .action-sheet { padding-bottom: calc(20px + constant(safe-area-inset-bottom)) !important; }
+      `;
+        document.head.appendChild(style);
+      }
+
+      // Управление боковой панелью
+      function toggleSidebar() {
+        const sidebar = document.querySelector(".sidebar");
+        const overlay = document.querySelector(".sidebar-overlay");
+
+        if (sidebar.classList.contains("mobile-visible")) {
+          sidebar.classList.remove("mobile-visible");
+          overlay.classList.remove("active");
+          document.body.style.overflow = "auto";
+        } else {
+          sidebar.classList.add("mobile-visible");
+          overlay.classList.add("active");
+          document.body.style.overflow = "hidden";
+        }
+      }
+
+      // Инициализация свайп-контроля
+      function initSwipeControl() {
+        const swipeHandle = document.getElementById("swipeHandle");
+        const swipeTrack = document.querySelector(".swipe-track");
+        const swipeProgress = document.getElementById("swipeProgress");
+
+        let isDragging = false;
+        let startX = 0;
+        let currentX = 0;
+        const maxSwipe = swipeTrack.offsetWidth - swipeHandle.offsetWidth;
+
+        swipeHandle.addEventListener("touchstart", function (e) {
+          e.preventDefault();
+          isDragging = true;
+          startX = e.touches[0].clientX;
+          swipeHandle.style.transition = "none";
+          swipeProgress.style.transition = "none";
         });
 
-        // Масштабирование всего содержимого
-        function adjustScale() {
-            const scaler = document.querySelector('.scaler');
-            const windowRatio = window.innerWidth / window.innerHeight;
-            const designRatio = 800 / 600; // Соотношение оригинального дизайна
+        swipeHandle.addEventListener("touchmove", function (e) {
+          if (!isDragging) return;
+          e.preventDefault();
 
-            if (windowRatio > designRatio) {
-                // Широкое окно - масштабируем по высоте
-                scaler.style.width = (window.innerHeight * designRatio) + 'px';
-                scaler.style.height = window.innerHeight + 'px';
-                scaler.style.left = (window.innerWidth - scaler.offsetWidth) / 2 + 'px';
-                scaler.style.top = '0';
-            } else {
-                // Узкое окно - масштабируем по ширине
-                scaler.style.width = window.innerWidth + 'px';
-                scaler.style.height = (window.innerWidth / designRatio) + 'px';
-                scaler.style.left = '0';
-                scaler.style.top = (window.innerHeight - scaler.offsetHeight) / 2 + 'px';
-            }
+          currentX = e.touches[0].clientX - startX;
+          if (currentX < 0) currentX = 0;
+          if (currentX > maxSwipe) currentX = maxSwipe;
+
+          swipeHandle.style.transform = `translateX(${currentX}px)`;
+          swipeProgress.style.width = `${(currentX / maxSwipe) * 100}%`;
+
+          // Изменение цвета при достижении порога
+          if (currentX > maxSwipe * 0.5) {
+            document.getElementById("swipeControl").style.background =
+              "linear-gradient(135deg, var(--success), var(--info))";
+          } else {
+            document.getElementById("swipeControl").style.background =
+              "linear-gradient(135deg, var(--accent), var(--info))";
+          }
+        });
+
+        swipeHandle.addEventListener("touchend", function (e) {
+          if (!isDragging) return;
+          isDragging = false;
+
+          swipeHandle.style.transition = "transform 0.3s ease";
+          swipeProgress.style.transition = "width 0.3s ease";
+
+          if (currentX > maxSwipe * 0.8) {
+            // Успешный свайп
+            toggleLock();
+            vibrate();
+          }
+
+          // Сброс позиции
+          setTimeout(() => {
+            swipeHandle.style.transform = "translateX(0)";
+            swipeProgress.style.width = "0%";
+            document.getElementById("swipeControl").style.background =
+              "linear-gradient(135deg, var(--accent), var(--info))";
+          }, 300);
+        });
+      }
+
+      // Настройка долгого нажатия
+      function setupLongPress() {
+        const elements = ["headlightBtn", "beepBtn"];
+
+        elements.forEach((id) => {
+          const element = document.getElementById(id);
+          let pressTimer;
+
+          element.addEventListener("touchstart", function (e) {
+            pressTimer = setTimeout(() => {
+              if (id === "headlightBtn") {
+                showActionSheet("lights");
+              } else if (id === "beepBtn") {
+                showActionSheet("sound");
+              }
+              vibrate(50);
+            }, 500);
+          });
+
+          element.addEventListener("touchend", function () {
+            clearTimeout(pressTimer);
+          });
+
+          element.addEventListener("touchmove", function () {
+            clearTimeout(pressTimer);
+          });
+        });
+      }
+
+      // Всплывающие меню
+      function showActionSheet(type) {
+        const sheet = document.getElementById("actionSheet");
+        const title = document.getElementById("actionSheetTitle");
+        const content = document.getElementById("actionSheetContent");
+
+        let html = "";
+
+        switch (type) {
+          case "power":
+            title.textContent = "Управление питанием";
+            html = `
+            <button class="action-sheet-item" onclick="sendCommand('reboot'); hideActionSheet();">
+              <span>🔄</span>
+              <span>Перезагрузить</span>
+            </button>
+            <button class="action-sheet-item" onclick="sendCommand('power_off'); hideActionSheet();">
+              <span>⭕</span>
+              <span>Выключить</span>
+            </button>
+          `;
+            break;
+
+          case "lights":
+            title.textContent = "Управление подсветкой";
+            html = `
+            <button class="action-sheet-item" onclick="setLedMode(0); hideActionSheet();">
+              <span>⚪</span>
+              <span>Выключить</span>
+            </button>
+            <button class="action-sheet-item" onclick="setLedMode(1); hideActionSheet();">
+              <span>🌈</span>
+              <span>Дыхание</span>
+            </button>
+            <button class="action-sheet-item" onclick="setLedMode(5); hideActionSheet();">
+              <span>✨</span>
+              <span>Мерцание</span>
+            </button>
+            <button class="action-sheet-item" onclick="setLedMode(7); hideActionSheet();">
+              <span>🚨</span>
+              <span>Полиция</span>
+            </button>
+          `;
+            break;
+
+          case "sound":
+            title.textContent = "Управление звуком";
+            html = `
+            <button class="action-sheet-item" onclick="sendCommand('beep_toggle'); hideActionSheet();">
+              <span>🔊</span>
+              <span>Вкл/Выкл звук</span>
+            </button>
+            <button class="action-sheet-item" onclick="toggleBeepAlarm(true); hideActionSheet();">
+              <span>🚨</span>
+              <span>Включить сигнал</span>
+            </button>
+            <button class="action-sheet-item" onclick="toggleBeepTotal(false); hideActionSheet();">
+              <span>🔇</span>
+              <span>Выключить все звуки</span>
+            </button>
+          `;
+            break;
+
+          case "more":
+            title.textContent = "Навигация";
+            html = `
+            <button class="action-sheet-item" onclick="switchTab('extended'); hideActionSheet();">
+              <span>🔍</span>
+              <span>Детали</span>
+            </button>
+            <button class="action-sheet-item" onclick="switchTab('settings'); hideActionSheet();">
+              <span>⚙️</span>
+              <span>Настройки</span>
+            </button>
+            <button class="action-sheet-item" onclick="switchTab('research'); hideActionSheet();">
+              <span>🔬</span>
+              <span>Исследование</span>
+            </button>
+            <button class="action-sheet-item" onclick="switchTab('ota'); hideActionSheet();">
+              <span>🔄</span>
+              <span>Обновление</span>
+            </button>
+            <button class="action-sheet-item" onclick="switchTab('system'); hideActionSheet();">
+              <span>💻</span>
+              <span>Система</span>
+            </button>
+          `;
+            break;
         }
 
-        window.addEventListener('resize', adjustScale);
-        window.addEventListener('load', adjustScale);
-    </script>
-</body>
+        content.innerHTML = html;
+        sheet.classList.add("active");
+        document.body.style.overflow = "hidden";
+      }
 
+      function hideActionSheet() {
+        const sheet = document.getElementById("actionSheet");
+        sheet.classList.remove("active");
+        document.body.style.overflow = "auto";
+      }
+
+      // Вибрация
+      function vibrate(duration = 30) {
+        if (navigator.vibrate) {
+          navigator.vibrate(duration);
+        }
+      }
+
+      // Переключение вкладок
+      function switchTab(tabName) {
+        // Закрыть боковую панель на мобильных
+        if (window.innerWidth <= 768) {
+          toggleSidebar();
+        }
+
+        // Скрыть все вкладки
+        document.querySelectorAll(".tab-content").forEach((tab) => {
+          tab.classList.remove("active");
+          tab.classList.remove("animate-slide");
+        });
+
+        // Скрыть все активные элементы навигации
+        document.querySelectorAll(".mobile-nav-item").forEach((item) => {
+          item.classList.remove("active");
+        });
+        document.querySelectorAll(".nav-item").forEach((item) => {
+          item.classList.remove("active");
+        });
+
+        // Показать выбранную вкладку
+        const tabElement = document.getElementById(tabName + "-tab");
+        if (tabElement) {
+          tabElement.classList.add("active");
+          setTimeout(() => {
+            tabElement.classList.add("animate-slide");
+          }, 10);
+
+          // Обновить заголовок
+          document.getElementById("mobileTitle").textContent =
+            getTabTitle(tabName);
+
+          // Найти и активировать соответствующий элемент навигации
+          // Для боковой панели (.nav-item)
+          const navItems = document.querySelectorAll(".nav-item");
+          const tabIndexMap = {
+            dashboard: 0,
+            extended: 1,
+            lights: 2,
+            stats: 3,
+            settings: 4,
+            research: 5,
+            system: 6,
+            ota: 7,
+          };
+
+          if (
+            tabIndexMap[tabName] !== undefined &&
+            navItems[tabIndexMap[tabName]]
+          ) {
+            navItems[tabIndexMap[tabName]].classList.add("active");
+          }
+
+          // Для мобильной навигации (.mobile-nav-item)
+          const mobileNavItems = document.querySelectorAll(".mobile-nav-item");
+          const mobileTabIndexMap = {
+            dashboard: 0,
+            lights: 1,
+            stats: 2,
+            // Для остальных вкладок мобильная навигация не используется
+          };
+
+          if (
+            mobileTabIndexMap[tabName] !== undefined &&
+            mobileNavItems[mobileTabIndexMap[tabName]]
+          ) {
+            mobileNavItems[mobileTabIndexMap[tabName]].classList.add("active");
+          }
+        }
+
+        currentTab = tabName;
+
+        // Прокрутить к началу
+        document.querySelector(".main-content").scrollTop = 0;
+      }
+
+      function getTabTitle(tabName) {
+        const titles = {
+          dashboard: "Панель управления",
+          extended: "Детали",
+          lights: "Подсветка",
+          stats: "Статистика",
+          settings: "Настройки",
+          research: "Исследование",
+          system: "Система",
+          ota: "Обновление",
+        };
+        return titles[tabName] || "Управление";
+      }
+
+      // Обновление статуса для мобильных
+      function updateMobileStatus(data) {
+        // Обновление основных значений
+        document.getElementById("batteryValue").innerHTML = `${
+          data.battery || 0
+        }<span class="value-unit">%</span>`;
+        document.getElementById("speedValue").innerHTML = `${
+          data.speed || 0
+        }<span class="value-unit">км/ч</span>`;
+        document.getElementById("tempValue").innerHTML = `${
+          data.temperature || 0
+        }<span class="value-unit">°C</span>`;
+
+        // Обновление статуса
+        document.getElementById("statusText").textContent =
+          data.statusText || "Загрузка...";
+
+        // Обновление сайдбара
+        document.getElementById("sidebarBattery").textContent = `${
+          data.battery || 0
+        }%`;
+        document.getElementById("sidebarSpeed").textContent = `Скорость: ${
+          data.speed || 0
+        } км/ч`;
+
+        // Обновление состояния блокировки
+        if (data.isLocked !== undefined) {
+          isLocked = data.isLocked;
+          updateLockStatus(isLocked);
+        }
+
+        // Обновление статуса соединения
+        if (data.connected) {
+          document.getElementById("connectionStatus").style.background =
+            "var(--success)";
+          document.getElementById("connectionText").textContent = "Подключено";
+        } else {
+          document.getElementById("connectionStatus").style.background =
+            "var(--danger)";
+          document.getElementById("connectionText").textContent = "Отключено";
+        }
+      }
+
+      function updateLockStatus(locked) {
+        // 1. Обновляем текст статуса
+        const statusElement = document.getElementById("statusText");
+        if (locked) {
+          statusElement.textContent = "ЗАБЛОКИРОВАН";
+          statusElement.style.color = "var(--danger)";
+        } else {
+          statusElement.textContent = "РАЗБЛОКИРОВАН";
+          statusElement.style.color = "var(--success)";
+        }
+      }
+
+      function toggleLock() {
+        if (isLocked) {
+          sendCommand("unlock");
+        } else {
+          sendCommand("lock");
+        }
+        vibrate();
+      }
+
+      function toggleFunction(func) {
+        sendCommand(func + "_toggle");
+        vibrate();
+      }
+
+      function toggleCruise() {
+        sendCommand("cruise_toggle");
+        vibrate();
+      }
+
+      function updateSpeedLimit(value) {
+        const limit = parseInt(value) * 10;
+        document.getElementById("speedLimitValue").textContent =
+          value + " км/ч";
+        setSpeedLimit(limit);
+      }
+
+      // Функции API из первого файла
+      // async function loadStatus() {
+      //   try {
+      //     const [statusRes, dataRes] = await Promise.all([
+      //       fetch('/status'),
+      //       fetch('/data')
+      //     ]);
+
+      //     const statusData = await statusRes.json();
+      //     const scooterData = await dataRes.json();
+
+      //     if (statusData.success) {
+      //       // Обновление основных данных
+      //       updateMobileStatus({
+      //         ...statusData,
+      //         ...scooterData,
+      //         battery: scooterData.battery || 0,
+      //         speed: scooterData.speed || 0,
+      //         temperature: scooterData.temperature || 0,
+      //         connected: statusData.connected
+      //       });
+
+      //       // Обновление расширенной информации если на соответствующей вкладке
+      //       if (currentTab === 'extended') {
+      //         updateExtendedInfo(scooterData);
+      //       }
+
+      //       // Обновление статистики
+      //       if (currentTab === 'stats') {
+      //         updateStats(scooterData);
+      //       }
+
+      //       // Обновление системы
+      //       if (currentTab === 'system') {
+      //         updateSystemInfo(scooterData);
+      //       }
+      //     }
+      //   } catch (error) {
+      //     console.error('Ошибка загрузки данных:', error);
+      //     showNotification('Ошибка загрузки данных', 'error');
+      //   }
+      // }
+
+      // Модифицированная функция loadStatus()
+      async function loadStatus() {
+        try {
+          const [statusRes, dataRes] = await Promise.all([
+            fetch("/status"),
+            fetch("/data"),
+          ]);
+
+          const statusData = await statusRes.json();
+          const scooterData = await dataRes.json();
+
+          if (statusData.success) {
+            // Обновление основных значений
+            const batteryValue = scooterData.battery || 0;
+            const speedValue = scooterData.speed || 0;
+            const tempValue = scooterData.temperature || 0;
+
+            // Оригинальный элемент батареи
+            document.getElementById(
+              "batteryValue"
+            ).innerHTML = `${batteryValue}<span class="value-unit">%</span>`;
+
+            // НОВОЕ: Обновляем Material Design батарею
+            updateMaterialBattery(
+              batteryValue,
+              scooterData.isCharging || false
+            );
+
+            document.getElementById(
+              "speedValue"
+            ).innerHTML = `${speedValue}<span class="value-unit">км/ч</span>`;
+            document.getElementById(
+              "tempValue"
+            ).innerHTML = `${tempValue}<span class="value-unit">°C</span>`;
+
+            // Обновление статуса
+            document.getElementById("statusText").textContent =
+              scooterData.statusText || "Загрузка...";
+
+            // Обновление сайдбара
+            document.getElementById(
+              "sidebarBattery"
+            ).textContent = `${batteryValue}%`;
+            document.getElementById(
+              "sidebarSpeed"
+            ).textContent = `Скорость: ${speedValue} км/ч`;
+
+            // Обновление состояния блокировки
+            if (scooterData.isLocked !== undefined) {
+              isLocked = scooterData.isLocked;
+              updateLockStatus(isLocked);
+            }
+
+            // Обновление статуса соединения
+            if (statusData.connected) {
+              document.getElementById("connectionStatus").style.background =
+                "var(--success)";
+              document.getElementById("connectionText").textContent =
+                "Подключено";
+            } else {
+              document.getElementById("connectionStatus").style.background =
+                "var(--danger)";
+              document.getElementById("connectionText").textContent =
+                "Отключено";
+            }
+
+            // Обновление расширенной информации если на соответствующей вкладке
+            if (currentTab === "extended") {
+              updateExtendedInfo(scooterData);
+            }
+
+            // Обновление статистики
+            if (currentTab === "stats") {
+              updateStats(scooterData);
+            }
+
+            // Обновление системы
+            if (currentTab === "system") {
+              updateSystemInfo(scooterData);
+            }
+          }
+        } catch (error) {
+          console.error("Ошибка загрузки данных:", error);
+          showNotification("Ошибка загрузки данных", "error");
+        }
+      }
+
+      async function sendCommand(cmd) {
+        try {
+          vibrate();
+          const response = await fetch("/" + cmd);
+          const data = await response.json();
+
+          if (data.success) {
+            showNotification(data.message || "Команда выполнена");
+            setTimeout(loadStatus, 500);
+          } else {
+            showNotification("Ошибка: " + data.message, "error");
+          }
+        } catch (error) {
+          console.error("Ошибка отправки команды:", error);
+          showNotification("Ошибка соединения", "error");
+        }
+      }
+
+      function setSpeedLimit(limit) {
+        fetch("/speed_limit?limit=" + limit)
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              showNotification(
+                "Лимит скорости установлен: " + limit / 10 + " км/ч"
+              );
+            } else {
+              showNotification("Ошибка: " + data.message, "error");
+            }
+          })
+          .catch((error) => {
+            console.error("Ошибка установки лимита:", error);
+            showNotification("Ошибка соединения", "error");
+          });
+      }
+
+      function setLedMode(mode) {
+        fetch("/led_mode?mode=" + mode)
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              showNotification("Режим подсветки изменен");
+            } else {
+              showNotification("Ошибка: " + data.message, "error");
+            }
+          })
+          .catch((error) => {
+            console.error("Ошибка изменения режима подсветки:", error);
+            showNotification("Ошибка соединения", "error");
+          });
+      }
+
+      function setLedColor(colorNum, value) {
+        fetch("/led_color?color=" + colorNum + "&value=" + value)
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              showNotification("Цвет подсветки изменен");
+            } else {
+              showNotification("Ошибка: " + data.message, "error");
+            }
+          })
+          .catch((error) => {
+            console.error("Ошибка изменения цвета подсветки:", error);
+            showNotification("Ошибка соединения", "error");
+          });
+      }
+
+      function toggleBeepAlarm(enabled) {
+        fetch("/beep_alarm?enabled=" + (enabled ? "1" : "0"))
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              showNotification(
+                enabled ? "Звуковой сигнал включен" : "Звуковой сигнал выключен"
+              );
+            }
+          })
+          .catch((error) => {
+            console.error("Ошибка переключения сигнала:", error);
+          });
+      }
+
+      function toggleBeepTotal(enabled) {
+        fetch("/beep_total?enabled=" + (enabled ? "1" : "0"))
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              showNotification(
+                enabled ? "Общий звук включен" : "Общий звук выключен"
+              );
+            }
+          })
+          .catch((error) => {
+            console.error("Ошибка переключения общего звука:", error);
+          });
+      }
+
+      function toggleSetting(setting, enabled) {
+        fetch("/setting?name=" + setting + "&value=" + (enabled ? "1" : "0"))
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              showNotification("Настройка сохранена");
+            }
+          })
+          .catch((error) => {
+            console.error("Ошибка сохранения настройки:", error);
+          });
+      }
+
+      function toggleHeadlight(enabled) {
+        fetch("/headlight?enabled=" + (enabled ? "1" : "0"))
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              showNotification(enabled ? "Фары включены" : "Фары выключены");
+            }
+          })
+          .catch((error) => {
+            console.error("Ошибка переключения фар:", error);
+          });
+      }
+
+      // Функции сканирования
+      function startSafeScan() {
+        if (scanActive) return;
+        scanActive = true;
+        showNotification("Начато безопасное сканирование", "info");
+        simulateScan();
+      }
+
+      function startBruteForceScan() {
+        if (scanActive) return;
+        scanActive = true;
+        showNotification(
+          "Внимание: брутфорс сканирование может быть опасным!",
+          "warning"
+        );
+        simulateScan();
+      }
+
+      function startDeepScan() {
+        if (scanActive) return;
+        scanActive = true;
+        showNotification("Начато глубокое сканирование", "info");
+        simulateScan();
+      }
+
+      function simulateScan() {
+        const progressBar = document.getElementById("scanProgress");
+        const progressText = document.getElementById("scanProgressText");
+        const scanStatus = document.getElementById("scanStatus");
+        const foundRegisters = document.getElementById("foundRegisters");
+
+        let progress = 0;
+        const total = 256;
+
+        scanStatus.textContent = "Сканирование...";
+
+        const interval = setInterval(() => {
+          progress += 4;
+          if (progress > total) progress = total;
+
+          progressBar.style.width = (progress / total) * 100 + "%";
+          progressText.textContent = progress + "/" + total;
+
+          if (progress >= total) {
+            clearInterval(interval);
+            scanActive = false;
+            scanStatus.textContent = "Сканирование завершено";
+            showNotification("Найдено 15 новых регистров", "success");
+
+            // Пример найденных регистров
+            foundRegisters.innerHTML = `
+            <div style="padding: 10px; background: var(--success); color: white; border-radius: 8px; margin-bottom: 10px;">
+              <strong>Регистр 0x51</strong>: Курок газа (0x0000 - 0xFFFF)
+            </div>
+            <div style="padding: 10px; background: var(--info); color: white; border-radius: 8px; margin-bottom: 10px;">
+              <strong>Регистр 0x52</strong>: Тормоз (0x0000 - 0xFFFF)
+            </div>
+            <div style="padding: 10px; background: var(--warning); color: var(--dark); border-radius: 8px; margin-bottom: 10px;">
+              <strong>Регистр 0x80</strong>: Управление фарами (0-2)
+            </div>
+          `;
+          }
+        }, 50);
+      }
+
+      function manualTest() {
+        const index = document.getElementById("manualIndex").value;
+        const value = document.getElementById("manualValue").value;
+
+        // Валидация hex значения
+        if (!/^0x[0-9A-Fa-f]{1,2}$/.test(index)) {
+          showNotification("Неверный формат индекса регистра", "error");
+          return;
+        }
+
+        // Валидация значения
+        if (value && !/^0x[0-9A-Fa-f]{1,4}$/.test(value)) {
+          showNotification("Неверный формат значения", "error");
+          return;
+        }
+
+        if (!index) {
+          showNotification("Введите индекс регистра", "error");
+          return;
+        }
+
+        showNotification(
+          `Тестирование регистра ${index} со значением ${value || "чтение"}`,
+          "info"
+        );
+
+        // Здесь должна быть реальная логика тестирования
+        setTimeout(() => {
+          showNotification("Тест выполнен успешно", "success");
+        }, 1000);
+      }
+
+      function startPacketLog() {
+        showNotification("Логирование пакетов начато", "info");
+      }
+
+      function stopPacketLog() {
+        showNotification("Логирование пакетов остановлено", "info");
+      }
+
+      function clearPacketLog() {
+        document.getElementById("packetLog").innerHTML = "";
+        showNotification("Лог очищен", "info");
+      }
+
+      function loadDiagnostics() {
+        // Здесь должна быть логика загрузки диагностики
+        showNotification("Диагностика обновлена", "info");
+      }
+
+      function loadSystemInfo() {
+        // Здесь должна быть логика загрузки информации о системе
+        showNotification("Информация о системе обновлена", "info");
+      }
+
+      function checkForUpdates() {
+        showNotification("Проверка обновлений...", "info");
+        setTimeout(() => {
+          showNotification("Обновлений не найдено", "info");
+        }, 2000);
+      }
+
+      function testOTAConnection() {
+        showNotification("Тестирование OTA соединения...", "info");
+        setTimeout(() => {
+          showNotification("OTA соединение работает", "success");
+        }, 1500);
+      }
+
+      function showOTAInstructions() {
+        showNotification(
+          "Инструкция по OTA обновлению открыта в новом окне",
+          "info"
+        );
+        window.open("/ota_instructions", "_blank");
+      }
+
+      // Обновление расширенной информации
+      function updateExtendedInfo(data) {
+        const elements = [
+          "driveVoltageValue",
+          "motorCurrentValue",
+          "powerValue",
+          "avgSpeedValue",
+          "bodyTempValue",
+          "bat1TempValue",
+          "bat2TempValue",
+          "mosTempValue",
+          "battery1Value",
+          "battery2Value",
+          "actualRangeValue",
+          "predictedRangeValue",
+          "serialValue",
+          "bmsVersionValue",
+          "bms2VersionValue",
+          "bleVersionValue",
+          "boolStatusValue",
+          "alarmStatusValue",
+          "errorValue",
+        ];
+
+        elements.forEach((id) => {
+          const element = document.getElementById(id);
+          if (element && data[id]) {
+            element.textContent = data[id];
+          }
+        });
+      }
+
+      // Обновление статистики
+      function updateStats(data) {
+        const elements = [
+          "singleMileageValue",
+          "singleRideTimeValue",
+          "totalOperationTimeValue",
+          "totalRideTimeValue",
+          "workModeValue",
+          "speedLimitValue",
+          "errorCodeValue",
+          "cruiseValue",
+          "headlightValue",
+          "beepValue",
+        ];
+
+        elements.forEach((id) => {
+          const element = document.getElementById(id);
+          if (element && data[id]) {
+            element.textContent = data[id];
+          }
+        });
+      }
+
+      // Обновление системной информации
+      function updateSystemInfo(data) {
+        const elements = [
+          "currentLedMode",
+          "fwVersion",
+          "workSystem",
+          "lockStatus",
+          "engineStatus",
+          "diagnosticError",
+          "diagnosticAlarm",
+          "diagnosticBool",
+          "diagnosticQuickBool",
+        ];
+
+        elements.forEach((id) => {
+          const element = document.getElementById(id);
+          if (element && data[id]) {
+            element.textContent = data[id];
+          }
+        });
+      }
+
+      // Автообновление
+      function startAutoRefresh() {
+        autoRefreshInterval = setInterval(loadStatus, 3000);
+      }
+
+      function toggleDataRefresh() {
+        if (autoRefreshInterval) {
+          clearInterval(autoRefreshInterval);
+          autoRefreshInterval = null;
+          showNotification("Автообновление выключено", "warning");
+        } else {
+          startAutoRefresh();
+          showNotification("Автообновление включено", "success");
+        }
+      }
+
+      // Уведомления
+      function showNotification(message, type = "info") {
+        const notification = document.getElementById("notification");
+        const text = document.getElementById("notificationText");
+        const icon = notification.querySelector(".notification-icon");
+
+        text.textContent = message;
+        notification.className = `notification ${type}`;
+
+        switch (type) {
+          case "error":
+            icon.textContent = "❌";
+            break;
+          case "warning":
+            icon.textContent = "⚠️";
+            break;
+          case "success":
+            icon.textContent = "✅";
+            break;
+          default:
+            icon.textContent = "ℹ️";
+        }
+
+        notification.classList.add("show");
+
+        setTimeout(() => {
+          notification.classList.remove("show");
+        }, 3000);
+      }
+
+      // Обработка онлайн/офлайн статуса
+      window.addEventListener("online", () => {
+        showNotification("Соединение восстановлено", "success");
+        loadStatus();
+      });
+
+      window.addEventListener("offline", () => {
+        showNotification("Нет соединения", "error");
+      });
+
+      // Предотвращение сна экрана (если поддерживается)
+      let wakeLock = null;
+      if ("wakeLock" in navigator && isMobile) {
+        try {
+          navigator.wakeLock.request("screen").then((wl) => {
+            wakeLock = wl;
+          });
+        } catch (err) {
+          console.log("Wake Lock не поддерживается");
+        }
+      }
+
+      // Освобождение Wake Lock при закрытии
+      window.addEventListener("beforeunload", () => {
+        if (wakeLock) {
+          wakeLock.release();
+          wakeLock = null;
+        }
+      });
+
+      // Обработка изменения размера окна
+      window.addEventListener("resize", function () {
+        // Закрыть боковую панель на больших экранах
+        if (window.innerWidth > 768) {
+          const sidebar = document.querySelector(".sidebar");
+          const overlay = document.querySelector(".sidebar-overlay");
+          sidebar.classList.remove("mobile-visible");
+          overlay.classList.remove("active");
+          document.body.style.overflow = "auto";
+        }
+      });
+
+      // Предотвращение контекстного меню на мобильных
+      if (isMobile) {
+        document.addEventListener("contextmenu", function (e) {
+          e.preventDefault();
+        });
+      }
+
+      function updateMaterialBattery(percent, isCharging = false) {
+        // Получаем элементы
+        const battery = document.getElementById("materialBattery");
+        const fill = document.getElementById("materialBatteryFill");
+        const percentText = document.getElementById("materialBatteryPercent");
+
+        // Обновляем уровень
+        if (fill) fill.style.width = `${percent}%`;
+        if (percentText) percentText.textContent = `${percent}%`;
+
+        // Сбрасываем классы
+        if (battery) {
+          battery.classList.remove("charging", "low");
+          battery.removeAttribute("data-theme");
+
+          // Устанавливаем состояние
+          if (isCharging) {
+            battery.classList.add("charging");
+            battery.setAttribute("data-theme", "green");
+          } else {
+            // Устанавливаем цвет в зависимости от уровня
+            if (percent > 50) {
+              battery.setAttribute("data-theme", "green");
+            } else if (percent > 20) {
+              battery.setAttribute("data-theme", "yellow");
+            } else {
+              battery.setAttribute("data-theme", "red");
+              battery.classList.add("low");
+            }
+          }
+        }
+
+        // Обновляем компактную версию для хедера
+        updateCompactBattery(percent, isCharging);
+      }
+
+      // Функция для компактной батареи
+      function updateCompactBattery(percent, isCharging = false) {
+        const compactBattery = document.getElementById("headerBattery");
+        const compactFill = document.getElementById("compactBatteryFill");
+        const compactText = document.getElementById("compactBatteryText");
+        const boltIcon = document.getElementById("chargingBoltIcon");
+
+        if (compactFill) compactFill.style.width = `${percent}%`;
+        if (compactText) compactText.textContent = `${percent}%`;
+
+        if (compactBattery) {
+          compactBattery.classList.remove("charging", "low");
+
+          if (isCharging) {
+            compactBattery.classList.add("charging");
+            if (boltIcon) boltIcon.style.display = "inline";
+          } else {
+            if (boltIcon) boltIcon.style.display = "none";
+
+            if (percent < 20) {
+              compactBattery.classList.add("low");
+            }
+          }
+        }
+      }
+    </script>
+  </body>
 </html>
